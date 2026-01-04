@@ -2,7 +2,7 @@
 name = "numru"
 version = "0.2.0"
 edition = "2021"
-authors = ["kurouzen <kurouzen@proton.me>"]
+authors = ["кurou <kurouzen@proton.me>"]
 description = "A high-performance scientific computation library written in Rust."
 license = "MIT"
 documentation = "https://docs.rs/numru/latest/numru/"
