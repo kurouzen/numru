@@ -1,6 +1,6 @@
 # numru
 
-![ci](https://img.shields.io/github/actions/workflow/status/mjovanc/numru/ci.yml?branch=main)
+![ci](https://img.shields.io/github/actions/workflow/status/kurouzen/numru/ci.yml?branch=main)
 ![crates.io](https://img.shields.io/crates/v/numru.svg)
 [![documentation](https://img.shields.io/badge/docs-numru-blue?logo=rust)](https://docs.rs/numru/latest/)
 

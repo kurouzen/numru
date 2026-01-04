@@ -2,14 +2,14 @@
 name = "numru"
 version = "0.2.0"
 edition = "2021"
-authors = ["Marcus Cvjeticanin <mjovanc@icloud.com>"]
+authors = ["кurou <kurouzen@proton.me>"]
 description = "A high-performance scientific computation library written in Rust."
 license = "MIT"
 documentation = "https://docs.rs/numru/latest/numru/"
-repository = "https://github.com/mjovanc/numru"
+repository = "https://github.com/kurouzen/numru"
 readme = "README.md"
 rust-version = "1.83.0"
-homepage = "https://github.com/mjovanc/numru"
+homepage = "https://github.com/kurouzen/numru"
 keywords = ["scientific", "computation", "numerical", "math", "array"]
 
 [badges]
