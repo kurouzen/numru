@@ -35,7 +35,7 @@ pub struct VisualizeBuilder<'a, T, D: Dimension> {
 
 impl<T: Display + FormatValue, D: Dimension> Array<T, D> {
     /// Starts the visualization process with default settings.
-    pub fn visualize(&self) -> VisualizeBuilder<T, D> {
+    pub fn visualize(&self) -> VisualizeBuilder<'_, T, D> {
         VisualizeBuilder {
             array: self,
             decimal_points: 1,

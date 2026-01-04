@@ -31,8 +31,12 @@ where
     }
 
     /// Computes the maximum values based on the current configuration.
-    pub fn compute(self) -> Vec<T> {
-        self.array.max_compute(self.axis).unwrap()
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the array is empty, the axis is invalid, or the dimension is unsupported.
+    pub fn compute(self) -> Result<Vec<T>, crate::errors::ArrayError> {
+        self.array.max_compute(self.axis)
     }
 }
 
@@ -63,25 +67,29 @@ where
     }
 
     /// Computes the minimum values based on the current configuration.
-    pub fn compute(self) -> Vec<T> {
-        self.array.min_compute(self.axis).unwrap()
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the array is empty, the axis is invalid, or the dimension is unsupported.
+    pub fn compute(self) -> Result<Vec<T>, crate::errors::ArrayError> {
+        self.array.min_compute(self.axis)
     }
 }
 
 /// A builder for computing the mean values of an array.
-pub struct MeanBuilder<'a, T, D> 
+pub struct MeanBuilder<'a, T, D>
 where
     T: PartialOrd + Copy + Into<f64>,
-    D: Dimension
+    D: Dimension,
 {
-    array: &'a Array<T,D>,
-    axis: Option<usize>    
+    array: &'a Array<T, D>,
+    axis: Option<usize>,
 }
 
-impl<'a, T, D> MeanBuilder<'a, T, D> 
+impl<'a, T, D> MeanBuilder<'a, T, D>
 where
     T: PartialOrd + Copy + Into<f64>,
-    D: Dimension
+    D: Dimension,
 {
     /// Creates a new `MeanBuilder` with the given array.
     pub fn new(array: &'a Array<T, D>) -> Self {
@@ -95,30 +103,33 @@ where
     }
 
     /// Computes the mean values based on the current configuration.
-    pub fn compute(self) -> Vec<f64> {
-        self.array.mean_compute(self.axis).unwrap()
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the array is empty, the axis is invalid, or the dimension is unsupported.
+    pub fn compute(self) -> Result<Vec<f64>, crate::errors::ArrayError> {
+        self.array.mean_compute(self.axis)
     }
 }
 
 impl<T: PartialOrd + Copy, D: Dimension> Array<T, D> {
     /// Starts building a computation for the maximum values of this array.
-    pub fn max(&self) -> MaxBuilder<T, D> {
+    pub fn max(&self) -> MaxBuilder<'_, T, D> {
         MaxBuilder::new(self)
     }
 
     /// Starts building a computation for the minimum values of this array.
-    pub fn min(&self) -> MinBuilder<T, D> {
+    pub fn min(&self) -> MinBuilder<'_, T, D> {
         MinBuilder::new(self)
     }
 
     /// Starts building a computation for the mean values of this array.
-    pub fn mean(&self) -> MeanBuilder<T, D> 
-    where 
-        T: Into<f64>
+    pub fn mean(&self) -> MeanBuilder<'_, T, D>
+    where
+        T: Into<f64>,
     {
         MeanBuilder::new(self)
     }
-
 }
 
 impl<T, D> Debug for MaxBuilder<'_, T, D>
@@ -162,7 +173,6 @@ where
             .finish()
     }
 }
-
 
 impl<T, D> Debug for MeanBuilder<'_, T, D>
 where

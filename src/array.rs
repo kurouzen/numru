@@ -294,7 +294,7 @@ where
     /// Computes the mean value(s) of the array along a specified axis or for the whole array.
     pub fn mean_compute(&self, axis: Option<usize>) -> Result<Vec<f64>, ArrayError>
     where
-        T: Into<f64>
+        T: Into<f64>,
     {
         if self.data.is_empty() {
             return Err(ArrayError::EmptyArray);
@@ -366,7 +366,11 @@ where
                             .flat_map(|d| {
                                 (0..cols).map(move |c| {
                                     let sum: f64 = (0..rows)
-                                        .map(|r| Into::<f64>::into(self.data[d * rows * cols + r * cols + c]))
+                                        .map(|r| {
+                                            Into::<f64>::into(
+                                                self.data[d * rows * cols + r * cols + c],
+                                            )
+                                        })
                                         .sum();
                                     Ok(sum / rows as f64)
                                 })
@@ -410,9 +414,19 @@ mod tests {
     }
 
     fn assert_vec_approx_eq(actual: Vec<f64>, expected: Vec<f64>) {
-        assert_eq!(actual.len(), expected.len(), "Vectors have different lengths");
+        assert_eq!(
+            actual.len(),
+            expected.len(),
+            "Vectors have different lengths"
+        );
         for (a, e) in actual.iter().zip(expected.iter()) {
-            assert_eq!(round_to_3dp(*a), round_to_3dp(*e), "Values differ: {} != {}", a, e);
+            assert_eq!(
+                round_to_3dp(*a),
+                round_to_3dp(*e),
+                "Values differ: {} != {}",
+                a,
+                e
+            );
         }
     }
 
@@ -488,29 +502,29 @@ mod tests {
     #[test]
     fn max_i64_1d() {
         let arr = arr![42, -17, 256, 3, 99, -8];
-        assert_eq!(arr.max().compute(), vec![256]);
+        assert_eq!(arr.max().compute().unwrap(), vec![256]);
     }
 
     #[test]
     fn max_f64_1d() {
         let arr = arr![PI, 2.71, -1.0, 42.0, 0.98];
-        assert_eq!(arr.max().compute(), vec![42.0]);
+        assert_eq!(arr.max().compute().unwrap(), vec![42.0]);
     }
 
     #[test]
     fn max_i64_2d() {
         let arr = arr![[1, 5, 3], [4, 2, 6], [0, 9, 8]];
-        assert_eq!(arr.max().compute(), vec![9]);
-        assert_eq!(arr.max().axis(0).compute(), vec![4, 9, 8]);
-        assert_eq!(arr.max().axis(1).compute(), vec![5, 6, 9]);
+        assert_eq!(arr.max().compute().unwrap(), vec![9]);
+        assert_eq!(arr.max().axis(0).compute().unwrap(), vec![4, 9, 8]);
+        assert_eq!(arr.max().axis(1).compute().unwrap(), vec![5, 6, 9]);
     }
 
     #[test]
     fn max_f64_2d() {
         let arr = arr![[PI, -2.71, 1.61], [2.72, 0.98, -7.42], [4.67, -0.45, 8.88]];
-        assert_eq!(arr.max().compute(), vec![8.88]);
-        assert_eq!(arr.max().axis(0).compute(), vec![4.67, 0.98, 8.88]);
-        assert_eq!(arr.max().axis(1).compute(), vec![PI, 2.72, 8.88]);
+        assert_eq!(arr.max().compute().unwrap(), vec![8.88]);
+        assert_eq!(arr.max().axis(0).compute().unwrap(), vec![4.67, 0.98, 8.88]);
+        assert_eq!(arr.max().axis(1).compute().unwrap(), vec![PI, 2.72, 8.88]);
     }
 
     #[test]
@@ -519,16 +533,19 @@ mod tests {
             [[101, 202, 303], [404, 505, 606]],
             [[-707, -808, -909], [111, 222, 333]]
         ];
-        assert_eq!(arr.max().compute(), vec![606]);
+        assert_eq!(arr.max().compute().unwrap(), vec![606]);
         assert_eq!(
-            arr.max().axis(0).compute(),
+            arr.max().axis(0).compute().unwrap(),
             vec![101, 202, 303, 404, 505, 606]
         );
         assert_eq!(
-            arr.max().axis(1).compute(),
+            arr.max().axis(1).compute().unwrap(),
             vec![404, 505, 606, 111, 222, 333]
         );
-        assert_eq!(arr.max().axis(2).compute(), vec![303, 606, -707, 333]);
+        assert_eq!(
+            arr.max().axis(2).compute().unwrap(),
+            vec![303, 606, -707, 333]
+        );
     }
 
     #[test]
@@ -537,46 +554,52 @@ mod tests {
             [[1.1, 2.2, 3.3], [4.4, 5.5, 6.6]],
             [[7.7, 8.8, 9.9], [10.0, 11.1, 12.2]]
         ];
-        assert_eq!(arr.max().compute(), vec![12.2]);
+        assert_eq!(arr.max().compute().unwrap(), vec![12.2]);
         assert_eq!(
-            arr.max().axis(0).compute(),
+            arr.max().axis(0).compute().unwrap(),
             vec![7.7, 8.8, 9.9, 10.0, 11.1, 12.2]
         );
         assert_eq!(
-            arr.max().axis(1).compute(),
+            arr.max().axis(1).compute().unwrap(),
             vec![4.4, 5.5, 6.6, 10.0, 11.1, 12.2]
         );
-        assert_eq!(arr.max().axis(2).compute(), vec![3.3, 6.6, 9.9, 12.2]);
+        assert_eq!(
+            arr.max().axis(2).compute().unwrap(),
+            vec![3.3, 6.6, 9.9, 12.2]
+        );
     }
 
     #[test]
     fn min_i64_1d() {
         let arr = arr![42, -17, 256, 3, 99, -8];
-        assert_eq!(arr.min().compute(), vec![-17]);
-        assert_eq!(arr.min().axis(0).compute(), vec![-17]);
+        assert_eq!(arr.min().compute().unwrap(), vec![-17]);
+        assert_eq!(arr.min().axis(0).compute().unwrap(), vec![-17]);
     }
 
     #[test]
     fn min_f64_1d() {
         let arr = arr![PI, 2.71, -1.0, 42.0, 0.98];
-        assert_eq!(arr.min().compute(), vec![-1.0]);
-        assert_eq!(arr.min().axis(0).compute(), vec![-1.0]);
+        assert_eq!(arr.min().compute().unwrap(), vec![-1.0]);
+        assert_eq!(arr.min().axis(0).compute().unwrap(), vec![-1.0]);
     }
 
     #[test]
     fn min_i64_2d() {
         let arr = arr![[1, 5, 3], [4, 2, 6], [0, 9, 8]];
-        assert_eq!(arr.min().compute(), vec![0]);
-        assert_eq!(arr.min().axis(0).compute(), vec![0, 2, 3]);
-        assert_eq!(arr.min().axis(1).compute(), vec![1, 2, 0]);
+        assert_eq!(arr.min().compute().unwrap(), vec![0]);
+        assert_eq!(arr.min().axis(0).compute().unwrap(), vec![0, 2, 3]);
+        assert_eq!(arr.min().axis(1).compute().unwrap(), vec![1, 2, 0]);
     }
 
     #[test]
     fn min_f64_2d() {
         let arr = arr![[TAU, -PI, 1.61], [E, 0.98, -7.42], [4.67, -0.45, 8.88]];
-        assert_eq!(arr.min().compute(), vec![-7.42]);
-        assert_eq!(arr.min().axis(0).compute(), vec![E, -PI, -7.42]);
-        assert_eq!(arr.min().axis(1).compute(), vec![-PI, -7.42, -0.45]);
+        assert_eq!(arr.min().compute().unwrap(), vec![-7.42]);
+        assert_eq!(arr.min().axis(0).compute().unwrap(), vec![E, -PI, -7.42]);
+        assert_eq!(
+            arr.min().axis(1).compute().unwrap(),
+            vec![-PI, -7.42, -0.45]
+        );
     }
 
     #[test]
@@ -585,16 +608,19 @@ mod tests {
             [[101, 202, 303], [404, 505, 606]],
             [[-707, -808, -909], [111, 222, 333]]
         ];
-        assert_eq!(arr.min().compute(), vec![-909]);
+        assert_eq!(arr.min().compute().unwrap(), vec![-909]);
         assert_eq!(
-            arr.min().axis(0).compute(),
+            arr.min().axis(0).compute().unwrap(),
             vec![-707, -808, -909, 111, 222, 333]
         );
         assert_eq!(
-            arr.min().axis(1).compute(),
+            arr.min().axis(1).compute().unwrap(),
             vec![101, 202, 303, -707, -808, -909]
         );
-        assert_eq!(arr.min().axis(2).compute(), vec![101, 404, -909, 111]);
+        assert_eq!(
+            arr.min().axis(2).compute().unwrap(),
+            vec![101, 404, -909, 111]
+        );
     }
 
     #[test]
@@ -603,16 +629,19 @@ mod tests {
             [[1.1, 2.2, 3.3], [4.4, 5.5, 6.6]],
             [[7.7, 8.8, 9.9], [10.0, 11.1, 12.2]]
         ];
-        assert_eq!(arr.min().compute(), vec![1.1]);
+        assert_eq!(arr.min().compute().unwrap(), vec![1.1]);
         assert_eq!(
-            arr.min().axis(0).compute(),
+            arr.min().axis(0).compute().unwrap(),
             vec![1.1, 2.2, 3.3, 4.4, 5.5, 6.6]
         );
         assert_eq!(
-            arr.min().axis(1).compute(),
+            arr.min().axis(1).compute().unwrap(),
             vec![1.1, 2.2, 3.3, 7.7, 8.8, 9.9]
         );
-        assert_eq!(arr.min().axis(2).compute(), vec![1.1, 4.4, 7.7, 10.0]);
+        assert_eq!(
+            arr.min().axis(2).compute().unwrap(),
+            vec![1.1, 4.4, 7.7, 10.0]
+        );
     }
 
     #[test]
@@ -949,14 +978,14 @@ mod tests {
     fn mean_i64_1d() {
         let arr = arr![42, -17, 256, 3, 99, -8];
         let expected_mean = vec![62.5];
-        assert_vec_approx_eq(arr.mean().compute(), expected_mean);
+        assert_vec_approx_eq(arr.mean().compute().unwrap(), expected_mean);
     }
 
     #[test]
     fn mean_f64_1d() {
         let arr = arr![PI, 2.71, -1.0, 42.0, 0.98];
         let expected_mean = vec![9.566];
-        assert_vec_approx_eq(arr.mean().compute(), expected_mean);
+        assert_vec_approx_eq(arr.mean().compute().unwrap(), expected_mean);
     }
 
     #[test]
@@ -965,9 +994,9 @@ mod tests {
         let expected_mean = vec![4.222];
         let expected_mean_axis_0 = vec![1.667, 5.333, 5.667];
         let expected_mean_axis_1 = vec![3.0, 4.0, 5.667];
-        assert_vec_approx_eq(arr.mean().compute(), expected_mean);
-        assert_vec_approx_eq(arr.mean().axis(0).compute(), expected_mean_axis_0);
-        assert_vec_approx_eq(arr.mean().axis(1).compute(), expected_mean_axis_1);
+        assert_vec_approx_eq(arr.mean().compute().unwrap(), expected_mean);
+        assert_vec_approx_eq(arr.mean().axis(0).compute().unwrap(), expected_mean_axis_0);
+        assert_vec_approx_eq(arr.mean().axis(1).compute().unwrap(), expected_mean_axis_1);
     }
 
     #[test]
@@ -976,9 +1005,9 @@ mod tests {
         let expected_mean = vec![1.269];
         let expected_mean_axis_0 = vec![3.51, -0.727, 1.023];
         let expected_mean_axis_1 = vec![0.681, -1.241, 4.367];
-        assert_vec_approx_eq(arr.mean().compute(), expected_mean);
-        assert_vec_approx_eq(arr.mean().axis(0).compute(), expected_mean_axis_0);
-        assert_vec_approx_eq(arr.mean().axis(1).compute(), expected_mean_axis_1);
+        assert_vec_approx_eq(arr.mean().compute().unwrap(), expected_mean);
+        assert_vec_approx_eq(arr.mean().axis(0).compute().unwrap(), expected_mean_axis_0);
+        assert_vec_approx_eq(arr.mean().axis(1).compute().unwrap(), expected_mean_axis_1);
     }
 
     #[test]
@@ -991,10 +1020,10 @@ mod tests {
         let expected_mean_axis_0 = vec![-303.0, -303.0, -303.0, 257.5, 363.5, 469.5];
         let expected_mean_axis_1 = vec![252.5, 353.5, 454.5, -298.0, -293.0, -288.0];
         let expected_mean_axis_2 = vec![202.0, 505.0, -808.0, 222.0];
-        assert_vec_approx_eq(arr.mean().compute(), expected_mean);
-        assert_vec_approx_eq(arr.mean().axis(0).compute(), expected_mean_axis_0);
-        assert_vec_approx_eq(arr.mean().axis(1).compute(), expected_mean_axis_1);
-        assert_vec_approx_eq(arr.mean().axis(2).compute(), expected_mean_axis_2);
+        assert_vec_approx_eq(arr.mean().compute().unwrap(), expected_mean);
+        assert_vec_approx_eq(arr.mean().axis(0).compute().unwrap(), expected_mean_axis_0);
+        assert_vec_approx_eq(arr.mean().axis(1).compute().unwrap(), expected_mean_axis_1);
+        assert_vec_approx_eq(arr.mean().axis(2).compute().unwrap(), expected_mean_axis_2);
     }
 
     #[test]
@@ -1007,9 +1036,57 @@ mod tests {
         let expected_mean_axis_0 = vec![4.4, 5.5, 6.6, 7.2, 8.3, 9.4];
         let expected_mean_axis_1 = vec![2.75, 3.85, 4.95, 8.85, 9.95, 11.05];
         let expected_mean_axis_2 = vec![2.2, 5.5, 8.8, 11.1];
-        assert_vec_approx_eq(arr.mean().compute(), expected_mean);
-        assert_vec_approx_eq(arr.mean().axis(0).compute(), expected_mean_axis_0);
-        assert_vec_approx_eq(arr.mean().axis(1).compute(), expected_mean_axis_1);
-        assert_vec_approx_eq(arr.mean().axis(2).compute(), expected_mean_axis_2);
+        assert_vec_approx_eq(arr.mean().compute().unwrap(), expected_mean);
+        assert_vec_approx_eq(arr.mean().axis(0).compute().unwrap(), expected_mean_axis_0);
+        assert_vec_approx_eq(arr.mean().axis(1).compute().unwrap(), expected_mean_axis_1);
+        assert_vec_approx_eq(arr.mean().axis(2).compute().unwrap(), expected_mean_axis_2);
+    }
+
+    #[test]
+    fn max_invalid_axis_2d() {
+        let arr = arr![[1, 2, 3], [4, 5, 6]];
+        let result = arr.max().axis(2).compute();
+        assert!(result.is_err());
+        assert!(matches!(result, Err(crate::ArrayError::InvalidAxis(_))));
+    }
+
+    #[test]
+    fn max_invalid_axis_3d() {
+        let arr = arr![[[1, 2], [3, 4]], [[5, 6], [7, 8]]];
+        let result = arr.max().axis(3).compute();
+        assert!(result.is_err());
+        assert!(matches!(result, Err(crate::ArrayError::InvalidAxis(_))));
+    }
+
+    #[test]
+    fn min_invalid_axis_2d() {
+        let arr = arr![[1, 2, 3], [4, 5, 6]];
+        let result = arr.min().axis(2).compute();
+        assert!(result.is_err());
+        assert!(matches!(result, Err(crate::ArrayError::InvalidAxis(_))));
+    }
+
+    #[test]
+    fn min_invalid_axis_3d() {
+        let arr = arr![[[1, 2], [3, 4]], [[5, 6], [7, 8]]];
+        let result = arr.min().axis(3).compute();
+        assert!(result.is_err());
+        assert!(matches!(result, Err(crate::ArrayError::InvalidAxis(_))));
+    }
+
+    #[test]
+    fn mean_invalid_axis_2d() {
+        let arr = arr![[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]];
+        let result = arr.mean().axis(2).compute();
+        assert!(result.is_err());
+        assert!(matches!(result, Err(crate::ArrayError::InvalidAxis(_))));
+    }
+
+    #[test]
+    fn mean_invalid_axis_3d() {
+        let arr = arr![[[1.0, 2.0], [3.0, 4.0]], [[5.0, 6.0], [7.0, 8.0]]];
+        let result = arr.mean().axis(3).compute();
+        assert!(result.is_err());
+        assert!(matches!(result, Err(crate::ArrayError::InvalidAxis(_))));
     }
 }
